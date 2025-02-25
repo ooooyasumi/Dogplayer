@@ -9,7 +9,7 @@ public class FileUtils {
         FileChooser fileChooser = new FileChooser();
         fileChooser.setTitle("选择视频文件");
         fileChooser.getExtensionFilters().addAll(
-                new FileChooser.ExtensionFilter("视频文件", "*.mp4", "*.flv")
+                new FileChooser.ExtensionFilter("视频文件", "*.mp4", "*.flv", "*.mkv", "*.avi")
         );
         return fileChooser.showOpenDialog(stage);
     }
