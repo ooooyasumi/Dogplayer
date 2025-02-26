@@ -16,6 +16,7 @@ import javafx.scene.media.MediaPlayer;
 import javafx.scene.media.MediaView; // 导入 MediaView
 import javafx.stage.Stage;
 import javafx.util.Duration;
+import javafx.scene.Cursor;
 
 public class VideoControllerBar extends HBox {
     private ToggleButton playPauseButton;
@@ -39,48 +40,86 @@ public class VideoControllerBar extends HBox {
         this.mediaView = mediaView; // 初始化 MediaView
         initUI();
         if (mediaPlayer != null) bindMediaPlayer();
+
+        // 添加媒体视图的鼠标移动监听
+        mediaView.setOnMouseMoved(e -> handleMouseMove());
     }
 
     private void initUI() {
+        // 初始化控件并更新图标
         playPauseButton = new ToggleButton("▶");
-        openButton = new Button("打开");
-        fullscreenButton = new Button("⛶");
+        openButton = new Button("📂");
+        fullscreenButton = new Button("⬜");
         progressSlider = new Slider(0, 1, 0);
         volumeSlider = new Slider(0, 1, 0.5);
         timeLabel = new Label("00:00/00:00");
 
+        // 布局样式设置
         setAlignment(Pos.CENTER);
-        setSpacing(10);
-        setPadding(new Insets(10));
-        setStyle("-fx-background-color: rgba(0, 0, 0, 0.7);");
+        setSpacing(15);
+        setPadding(new Insets(8));
+        setStyle("-fx-background-color: rgba(0, 0, 0, 0.6); -fx-background-radius: 8;");
 
-        // 禁用所有控件的焦点
+        // 禁用焦点显示
         playPauseButton.setFocusTraversable(false);
         openButton.setFocusTraversable(false);
         fullscreenButton.setFocusTraversable(false);
         progressSlider.setFocusTraversable(false);
         volumeSlider.setFocusTraversable(false);
 
+        // 进度条样式
         progressSlider.setMinWidth(200);
+        progressSlider.setMinHeight(4);
+        progressSlider.setStyle("-track-color: rgba(255,255,255,0.3); -thumb-color: #ff4757;"
+                + "-fx-control-inner-background: rgba(255,255,255,0.1);");
         HBox.setHgrow(progressSlider, Priority.ALWAYS);
-        fullscreenButton.setStyle("-fx-font-size: 14px; -fx-min-width: 40px;");
-        timeLabel.setStyle("-fx-text-fill: white;");
 
+        // 音量条样式
+        volumeSlider.setMinWidth(80);
+        volumeSlider.setMaxWidth(100);
+        volumeSlider.setStyle("-track-color: rgba(255,255,255,0.3); -thumb-color: #ffffff;");
+
+        // 时间标签样式
+        timeLabel.setStyle("-fx-text-fill: #dfe4ea; -fx-font-size: 12px;");
+
+        // 按钮通用样式
+        String buttonStyle = "-fx-background-radius: 4; -fx-min-width: 32px; -fx-min-height: 32px;"
+                + "-fx-background-color: transparent; -fx-text-fill: #ffffff; -fx-font-size: 16px;"
+                + "-fx-cursor: hand;";
+        String hoverStyle = "-fx-background-color: rgba(255,255,255,0.1);";
+
+        playPauseButton.setStyle(buttonStyle);
+        openButton.setStyle(buttonStyle);
+        fullscreenButton.setStyle(buttonStyle);
+
+        // 添加悬停动画
+        playPauseButton.setOnMouseEntered(e -> playPauseButton.setStyle(buttonStyle + hoverStyle));
+        playPauseButton.setOnMouseExited(e -> playPauseButton.setStyle(buttonStyle));
+        openButton.setOnMouseEntered(e -> openButton.setStyle(buttonStyle + hoverStyle));
+        openButton.setOnMouseExited(e -> openButton.setStyle(buttonStyle));
+        fullscreenButton.setOnMouseEntered(e -> fullscreenButton.setStyle(buttonStyle + hoverStyle));
+        fullscreenButton.setOnMouseExited(e -> fullscreenButton.setStyle(buttonStyle));
+
+        // 进度条悬停互动
+        progressSlider.setOnMouseEntered(e -> progressSlider.setStyle(progressSlider.getStyle() + "-fx-min-height: 6px;"));
+        progressSlider.setOnMouseExited(e -> progressSlider.setStyle(progressSlider.getStyle().replace("-fx-min-height: 6px;", "")));
+
+        // 添加控件到布局
         getChildren().addAll(openButton, playPauseButton, progressSlider, timeLabel, volumeSlider, fullscreenButton);
 
-        // 全屏按钮事件
+        // 全屏按钮事件（保持不变）
         fullscreenButton.setOnAction(e -> {
             boolean newState = !stage.isFullScreen();
             stage.setFullScreen(newState);
             if (!newState) {
                 Platform.runLater(() -> {
-                    mediaView.setFitWidth(stage.getWidth()); // 直接设置 MediaView 尺寸
+                    mediaView.setFitWidth(stage.getWidth());
                     mediaView.setFitHeight(stage.getHeight() - 60);
                 });
             }
         });
 
-        // 播放/暂停按钮事件
+        // 播放/暂停按钮事件（保持不变）
         playPauseButton.selectedProperty().addListener((obs, oldVal, newVal) -> {
             if (mediaPlayer != null) {
                 if (newVal) {
@@ -93,12 +132,12 @@ public class VideoControllerBar extends HBox {
             }
         });
 
-        // 音量条事件
+        // 音量控制事件（保持不变）
         volumeSlider.valueProperty().addListener((obs, oldVal, newVal) -> {
             if (mediaPlayer != null) mediaPlayer.setVolume(newVal.doubleValue());
         });
 
-        // 进度条拖动事件
+        // 进度条拖动事件（保持不变）
         progressSlider.setOnMousePressed(e -> {
             if (mediaPlayer != null) {
                 statusBeforeDrag = mediaPlayer.getStatus();
@@ -132,6 +171,10 @@ public class VideoControllerBar extends HBox {
                 }
                 if (System.currentTimeMillis() - lastMouseMoveTime > 3000) {
                     fadeOutControlBar();
+                    // 隐藏鼠标光标
+                    if (stage.getScene() != null) {
+                        stage.getScene().setCursor(Cursor.NONE);
+                    }
                 }
             }
         };
@@ -144,6 +187,10 @@ public class VideoControllerBar extends HBox {
             setVisible(true);
             setOpacity(1.0);
             if (fadeTransition != null) fadeTransition.stop();
+        }
+        // 显示鼠标光标
+        if (stage.getScene() != null) {
+            stage.getScene().setCursor(Cursor.DEFAULT);
         }
     }
 
