@@ -5,13 +5,16 @@ import javafx.application.Platform;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
+import javafx.scene.control.Alert; // 新增导入
+import javafx.scene.control.Label;
+import javafx.scene.input.Dragboard; // 新增导入
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseEvent;
+import javafx.scene.input.TransferMode; // 新增导入
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.StackPane;
 import javafx.stage.Stage;
-import javafx.scene.control.Label;
 import javafx.scene.media.Media;
 import javafx.scene.media.MediaPlayer;
 import javafx.scene.media.MediaView;
@@ -88,9 +91,82 @@ public class VideoPlayerApp extends Application {
             }
         });
 
+        // 拖放事件处理
+        scene.setOnDragOver(event -> {
+            if (event.getDragboard().hasFiles()) {
+                event.acceptTransferModes(TransferMode.COPY);
+            }
+            event.consume();
+        });
+
+        scene.setOnDragDropped(event -> {
+            Dragboard dragboard = event.getDragboard();
+            if (dragboard.hasFiles()) {
+                File file = dragboard.getFiles().get(0);
+                if (isVideoFile(file)) {
+                    loadVideoFile(file);
+                    event.setDropCompleted(true);
+                } else {
+                    showUnsupportedFileAlert(); // 显示不支持的文件提示
+                    event.setDropCompleted(false);
+                }
+            } else {
+                event.setDropCompleted(false);
+            }
+            event.consume();
+        });
+
         primaryStage.setScene(scene);
         primaryStage.setTitle("DogPlayer");
         primaryStage.show();
+    }
+
+    /**
+     * 判断文件是否为视频文件
+     */
+    private boolean isVideoFile(File file) {
+        String[] supportedExtensions = {".mp4", ".flv", ".mkv", ".avi"};
+        String fileName = file.getName().toLowerCase();
+        for (String ext : supportedExtensions) {
+            if (fileName.endsWith(ext)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
+     * 加载视频文件
+     */
+    private void loadVideoFile(File videoFile) {
+        if (videoFile != null) {
+            if (mediaPlayer != null) {
+                mediaPlayer.dispose();
+                controllerBar.dispose();
+            }
+
+            Media media = new Media(videoFile.toURI().toString());
+            mediaPlayer = new MediaPlayer(media);
+            mediaPlayer.setOnEndOfMedia(() -> {
+                mediaPlayer.seek(Duration.ZERO);
+                mediaPlayer.pause();
+            });
+
+            mediaView.setMediaPlayer(mediaPlayer);
+            standbyLabel.setVisible(false);
+            controllerBar.updateMediaPlayer(mediaPlayer);
+        }
+    }
+
+    /**
+     * 显示不支持的文件提示窗口
+     */
+    private void showUnsupportedFileAlert() {
+        Alert alert = new Alert(Alert.AlertType.ERROR);
+        alert.setTitle("错误");
+        alert.setHeaderText(null);
+        alert.setContentText("仅支持导入的视频文件格式（如 .mp4, .flv, .mkv, .avi）。");
+        alert.showAndWait();
     }
 
     private void loadNewVideo() {
