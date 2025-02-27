@@ -13,14 +13,13 @@ import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 import javafx.scene.media.MediaPlayer;
-import javafx.scene.media.MediaView; // 导入 MediaView
+import javafx.scene.media.MediaView;
 import javafx.stage.Stage;
 import javafx.util.Duration;
 import javafx.scene.Cursor;
 
 public class VideoControllerBar extends HBox {
     private ToggleButton playPauseButton;
-    private Button openButton;
     private Button fullscreenButton;
     private Slider progressSlider;
     private Slider volumeSlider;
@@ -32,12 +31,12 @@ public class VideoControllerBar extends HBox {
     private FadeTransition fadeTransition;
     private long lastMouseMoveTime = System.currentTimeMillis();
     private Stage stage;
-    private MediaView mediaView; // 添加 MediaView 引用
+    private MediaView mediaView;
 
     public VideoControllerBar(MediaPlayer mediaPlayer, Stage stage, MediaView mediaView) {
         this.mediaPlayer = mediaPlayer;
         this.stage = stage;
-        this.mediaView = mediaView; // 初始化 MediaView
+        this.mediaView = mediaView;
         initUI();
         if (mediaPlayer != null) bindMediaPlayer();
 
@@ -48,7 +47,6 @@ public class VideoControllerBar extends HBox {
     private void initUI() {
         // 初始化控件并更新图标
         playPauseButton = new ToggleButton("▶");
-        openButton = new Button("📂");
         fullscreenButton = new Button("⬜");
         progressSlider = new Slider(0, 1, 0);
         volumeSlider = new Slider(0, 1, 0.5);
@@ -62,7 +60,6 @@ public class VideoControllerBar extends HBox {
 
         // 禁用焦点显示
         playPauseButton.setFocusTraversable(false);
-        openButton.setFocusTraversable(false);
         fullscreenButton.setFocusTraversable(false);
         progressSlider.setFocusTraversable(false);
         volumeSlider.setFocusTraversable(false);
@@ -89,14 +86,11 @@ public class VideoControllerBar extends HBox {
         String hoverStyle = "-fx-background-color: rgba(255,255,255,0.1);";
 
         playPauseButton.setStyle(buttonStyle);
-        openButton.setStyle(buttonStyle);
         fullscreenButton.setStyle(buttonStyle);
 
         // 添加悬停动画
         playPauseButton.setOnMouseEntered(e -> playPauseButton.setStyle(buttonStyle + hoverStyle));
         playPauseButton.setOnMouseExited(e -> playPauseButton.setStyle(buttonStyle));
-        openButton.setOnMouseEntered(e -> openButton.setStyle(buttonStyle + hoverStyle));
-        openButton.setOnMouseExited(e -> openButton.setStyle(buttonStyle));
         fullscreenButton.setOnMouseEntered(e -> fullscreenButton.setStyle(buttonStyle + hoverStyle));
         fullscreenButton.setOnMouseExited(e -> fullscreenButton.setStyle(buttonStyle));
 
@@ -105,9 +99,9 @@ public class VideoControllerBar extends HBox {
         progressSlider.setOnMouseExited(e -> progressSlider.setStyle(progressSlider.getStyle().replace("-fx-min-height: 6px;", "")));
 
         // 添加控件到布局
-        getChildren().addAll(openButton, playPauseButton, progressSlider, timeLabel, volumeSlider, fullscreenButton);
+        getChildren().addAll(playPauseButton, progressSlider, timeLabel, volumeSlider, fullscreenButton);
 
-        // 全屏按钮事件（保持不变）
+        // 全屏按钮事件
         fullscreenButton.setOnAction(e -> {
             boolean newState = !stage.isFullScreen();
             stage.setFullScreen(newState);
@@ -119,7 +113,7 @@ public class VideoControllerBar extends HBox {
             }
         });
 
-        // 播放/暂停按钮事件（保持不变）
+        // 播放/暂停按钮事件
         playPauseButton.selectedProperty().addListener((obs, oldVal, newVal) -> {
             if (mediaPlayer != null) {
                 if (newVal) {
@@ -132,12 +126,12 @@ public class VideoControllerBar extends HBox {
             }
         });
 
-        // 音量控制事件（保持不变）
+        // 音量控制事件
         volumeSlider.valueProperty().addListener((obs, oldVal, newVal) -> {
             if (mediaPlayer != null) mediaPlayer.setVolume(newVal.doubleValue());
         });
 
-        // 进度条拖动事件（保持不变）
+        // 进度条拖动事件
         progressSlider.setOnMousePressed(e -> {
             if (mediaPlayer != null) {
                 statusBeforeDrag = mediaPlayer.getStatus();
@@ -249,10 +243,6 @@ public class VideoControllerBar extends HBox {
                 playPauseButton.setText("⏸");
             }
         }
-    }
-
-    public void setOpenAction(Runnable action) {
-        openButton.setOnAction(e -> action.run());
     }
 
     public void updateMediaPlayer(MediaPlayer mediaPlayer) {
