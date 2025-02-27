@@ -33,8 +33,9 @@ public class VideoPlayerApp extends Application {
         root.setStyle("-fx-background-color: black;");
 
         mediaContainer = new StackPane();
+        mediaContainer.setMinWidth(0); // 允许缩小到零宽度
         standbyLabel = new Label("DogPlayer");
-        standbyLabel.setStyle("-fx-font-size: 48px; -fx-text-fill: rgba(255,255,255,0.3); -fx-font-family: 'Arial Rounded MT Bold';");
+        standbyLabel.setStyle("-fx-font-size: 48px; -fx-text-fill: rgba(255,255,255,0.3);");
         StackPane.setAlignment(standbyLabel, Pos.CENTER);
 
         mediaView = new MediaView();
@@ -42,19 +43,18 @@ public class VideoPlayerApp extends Application {
         mediaContainer.getChildren().addAll(mediaView, standbyLabel);
         mediaContainer.setStyle("-fx-background-color: black;");
 
-        controllerBar = new VideoControllerBar(null, primaryStage, mediaView); // 传递 MediaView
+        controllerBar = new VideoControllerBar(null, primaryStage, mediaView);
         controllerBar.setOpenAction(() -> loadNewVideo());
         BorderPane.setMargin(controllerBar, new Insets(0));
 
-        mediaView.fitWidthProperty().bind(mediaContainer.widthProperty());
-        mediaView.fitHeightProperty().bind(mediaContainer.heightProperty().subtract(60));
+        // 动态绑定 MediaView 的宽度和高度
+        mediaContainer.widthProperty().addListener((obs, oldVal, newVal) -> {
+            mediaView.setFitWidth(newVal.doubleValue());
+        });
 
-        // 添加最小宽度约束
-        mediaView.fitWidthProperty().bind(mediaContainer.widthProperty());
-        mediaView.fitHeightProperty().bind(mediaContainer.heightProperty().subtract(60));
-        // 添加媒体容器的最小尺寸约束
-        mediaView.fitWidthProperty().bind(mediaContainer.widthProperty());
-
+        mediaContainer.heightProperty().addListener((obs, oldVal, newVal) -> {
+            mediaView.setFitHeight(newVal.doubleValue() - 60);
+        });
 
         root.setCenter(mediaContainer);
         root.setBottom(controllerBar);
@@ -65,7 +65,7 @@ public class VideoPlayerApp extends Application {
         // 全局键盘事件监听
         scene.addEventFilter(KeyEvent.KEY_PRESSED, e -> {
             if (e.getCode() == KeyCode.SPACE) {
-                e.consume(); // 阻止事件传递到其他组件
+                e.consume();
                 if (mediaPlayer != null) {
                     controllerBar.togglePlayPause();
                 }
@@ -81,9 +81,9 @@ public class VideoPlayerApp extends Application {
         primaryStage.fullScreenProperty().addListener((obs, oldVal, newVal) -> {
             if (!newVal) {
                 Platform.runLater(() -> {
-                    mediaView.setFitWidth(primaryStage.getWidth());
-                    mediaView.setFitHeight(primaryStage.getHeight() - 60);
-                    root.requestLayout(); // 强制刷新布局
+                    mediaView.setFitWidth(mediaContainer.getWidth());
+                    mediaView.setFitHeight(mediaContainer.getHeight() - 60);
+                    root.requestLayout();
                 });
             }
         });
@@ -117,4 +117,4 @@ public class VideoPlayerApp extends Application {
     public static void main(String[] args) {
         launch(args);
     }
-}   
+}
