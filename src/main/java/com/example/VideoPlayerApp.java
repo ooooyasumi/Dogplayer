@@ -13,7 +13,7 @@ import javafx.scene.layout.StackPane;
 import javafx.stage.Stage;
 import javafx.scene.control.Label;
 import javafx.scene.media.Media;
-import javafx.scene.media.MediaPlayer; // 修复拼写错误
+import javafx.scene.media.MediaPlayer;
 import javafx.scene.media.MediaView;
 import javafx.util.Duration;
 import java.io.File;
@@ -34,7 +34,7 @@ public class VideoPlayerApp extends Application {
 
         mediaContainer = new StackPane();
         standbyLabel = new Label("DogPlayer");
-        standbyLabel.setStyle("-fx-font-size: 48px; -fx-text-fill: rgba(255,255,255,0.3);");
+        standbyLabel.setStyle("-fx-font-size: 48px; -fx-text-fill: rgba(255,255,255,0.3); -fx-font-family: 'Arial Rounded MT Bold';");
         StackPane.setAlignment(standbyLabel, Pos.CENTER);
 
         mediaView = new MediaView();
@@ -48,6 +48,13 @@ public class VideoPlayerApp extends Application {
 
         mediaView.fitWidthProperty().bind(mediaContainer.widthProperty());
         mediaView.fitHeightProperty().bind(mediaContainer.heightProperty().subtract(60));
+
+        // 添加最小宽度约束
+        mediaView.fitWidthProperty().bind(mediaContainer.widthProperty());
+        mediaView.fitHeightProperty().bind(mediaContainer.heightProperty().subtract(60));
+        // 添加媒体容器的最小尺寸约束
+        mediaView.fitWidthProperty().bind(mediaContainer.widthProperty());
+
 
         root.setCenter(mediaContainer);
         root.setBottom(controllerBar);
