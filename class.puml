@@ -1,0 +1,46 @@
+@startuml
+skinparam classFontSize 15
+skinparam classAttributeIconSize 0
+left to right direction
+
+class VideoPlayerApp {
+  - mediaPlayer: MediaPlayer
+  - mediaView: MediaView
+  - controllerBar: VideoControllerBar
+  - primaryStage: Stage
+  + start(Stage): void
+  - initMenuBar(): void
+  - loadVideoFile(File): void
+}
+
+class VideoControllerBar {
+  - mediaPlayer: MediaPlayer
+  - stage: Stage
+  + VideoControllerBar(MediaPlayer, Stage, MediaView)
+  + togglePlayPause(): void
+  - bindMediaPlayer(): void
+}
+
+class FileUtils {
+  + chooseVideoFile(Stage): File
+}
+
+package "JavaFX Framework" {
+  class MediaPlayer #lightgray
+  class Stage #lightgray
+  class MediaView #lightgray
+}
+
+VideoPlayerApp --> VideoControllerBar 
+VideoPlayerApp ..> FileUtils
+VideoPlayerApp --> MediaPlayer
+VideoPlayerApp --> Stage
+VideoPlayerApp --> MediaView
+
+VideoControllerBar --> MediaPlayer
+VideoControllerBar --> Stage
+
+MediaPlayer <|-- MediaView
+
+hide empty members
+@enduml
