@@ -336,19 +336,29 @@ public class VideoPlayerApp extends Application {
 
     // 新增设置窗口显示方法
     private void showSettingsWindow() {
-    SettingsPanel settingsPanel = new SettingsPanel(primaryStage);
-    Stage settingsStage = new Stage();
-    
-    // 添加窗口样式
-    settingsStage.initModality(Modality.APPLICATION_MODAL);
-    Scene scene = new Scene(settingsPanel, 600, 400);
-    scene.setFill(Color.TRANSPARENT);
-    scene.getRoot().setStyle("-fx-background-color: #2B2B2B; -fx-background-radius: 5;");
-    
-    settingsStage.setScene(scene);
-    settingsStage.setTitle("设置");
-    settingsStage.show();
-}
+        Stage settingsStage = new Stage();
+        SettingsPanel settingsPanel = new SettingsPanel();  // 使用无参构造函数
+        
+        Scene scene = new Scene(settingsPanel, 600, 400);
+        scene.setFill(Color.TRANSPARENT);
+        
+        // 设置窗口属性
+        settingsStage.initOwner(primaryStage);  // 设置主窗口为拥有者
+        settingsStage.initModality(Modality.WINDOW_MODAL);  // 使用窗口级模态
+        settingsStage.setScene(scene);
+        settingsStage.setTitle("设置");
+        
+        // 添加圆角样式
+        settingsStage.getScene().getRoot().setStyle(
+            "-fx-background-color: #2B2B2B;" +
+            "-fx-background-radius: 5;" +
+            "-fx-border-color: #404040;" +
+            "-fx-border-radius: 5;" +
+            "-fx-border-width: 1;"
+        );
+        
+        settingsStage.show();
+    }
 
     public static void main(String[] args) {
         launch(args);
