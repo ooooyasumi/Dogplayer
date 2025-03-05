@@ -20,7 +20,10 @@ import javafx.animation.FadeTransition;
 import javafx.scene.media.Media;
 import javafx.scene.media.MediaPlayer;
 import javafx.scene.media.MediaView;
+import javafx.scene.paint.Color;
+
 import java.io.File;
+import javafx.stage.Modality;
 
 public class VideoPlayerApp extends Application {
     private MediaPlayer mediaPlayer;
@@ -82,9 +85,7 @@ public class VideoPlayerApp extends Application {
             }
         });
 
-        scene.addEventFilter(MouseEvent.MOUSE_MOVED, e ->
-                controllerBar.handleMouseMove()
-        );
+        scene.addEventFilter(MouseEvent.MOUSE_MOVED, e -> controllerBar.handleMouseMove());
 
         primaryStage.fullScreenProperty().addListener((obs, oldVal, newVal) -> {
             if (!newVal) {
@@ -127,7 +128,8 @@ public class VideoPlayerApp extends Application {
 
     private void initMenuBar() {
         Button menuButton = new Button("DogPlayer");
-        menuButton.setStyle("-fx-background-color: transparent; -fx-text-fill: white; -fx-font-size: 14px; -fx-cursor: hand;");
+        menuButton.setStyle(
+                "-fx-background-color: transparent; -fx-text-fill: white; -fx-font-size: 14px; -fx-cursor: hand;");
 
         fileNameLabel = new Label("未打开文件");
         fileNameLabel.setStyle("-fx-text-fill: rgba(255,255,255,0.8); -fx-font-size: 12px;");
@@ -146,46 +148,39 @@ public class VideoPlayerApp extends Application {
         ContextMenu contextMenu = new ContextMenu();
         contextMenu.setStyle(
                 "-fx-background-color: #2B2B2B;" +
-                        "-fx-background-radius: 5;" +
-                        "-fx-border-radius: 5;" +
-                        "-fx-border-color: #404040;" +
-                        "-fx-border-width: 1;" +
-                        "-fx-effect: dropshadow(gaussian, rgba(0,0,0,0.3), 10, 0, 0, 3);" +
-                        "-fx-padding: 8 0 8 0;"
-        );
-
+                "-fx-background-radius: 5;" +
+                "-fx-border-radius: 5;" +
+                "-fx-border-color: #404040;" +
+                "-fx-border-width: 1;" +
+                "-fx-effect: dropshadow(gaussian, rgba(0,0,0,0.3), 10, 0, 0, 3);" +
+                "-fx-padding: 8 0 8 0;");
+    
         // 文件菜单
         Menu menuFile = createModernMenu("文件", "\uE8A5");
         MenuItem openItem = createModernMenuItem("打开", "#00C896");
         openItem.setOnAction(e -> loadNewVideo());
         menuFile.getItems().add(openItem);
-
+    
         // 其他菜单项
-        MenuItem aboutItem = createModernMenuItem("关于 DogPlayer", "#00B4FF");
-        MenuItem exitItem = createModernMenuItem("退出", "#FF4757");
-
-        // 分隔符样式
+        MenuItem settingsItem = createModernMenuItem("设置", "#FFA500");
+        settingsItem.setOnAction(e -> showSettingsWindow());
+        
+        // 声明分隔符和退出项
         SeparatorMenuItem separator = new SeparatorMenuItem();
         separator.setStyle("-fx-padding: 5 0 5 0;");
-        separator.getContent().setStyle(
-                "-fx-border-color: #404040;" +
-                        "-fx-border-width: 1 0 0 0;"
-        );
-
-        // 构建菜单结构
-        contextMenu.getItems().addAll(
-                menuFile,
-                separator,
-                aboutItem,
-                exitItem
-        );
-
-        // 事件处理
-        aboutItem.setOnAction(e -> showModernAboutDialog());
+        
+        MenuItem exitItem = createModernMenuItem("退出", "#FF4757");
         exitItem.setOnAction(e -> Platform.exit());
-
-        // 菜单按钮交互
-        menuButton.setOnAction(e -> toggleContextMenu(contextMenu, menuButton));
+    
+        // 构建菜单结构（已移除关于项）
+        contextMenu.getItems().addAll(
+            menuFile,
+            separator,
+            settingsItem,
+            exitItem
+        );
+    
+        menuButton.setOnMouseClicked(e -> toggleContextMenu(contextMenu, menuButton));
     }
 
     private Menu createModernMenu(String title, String iconCode) {
@@ -197,8 +192,7 @@ public class VideoPlayerApp extends Application {
                         "-fx-padding: 8 20 8 15;" +
                         "-fx-background-color: transparent;" +
                         "-fx-graphic: '" + iconCode + "';" +
-                        "-fx-graphic-text-gap: 10;"
-        );
+                        "-fx-graphic-text-gap: 10;");
         return menu;
     }
 
@@ -208,7 +202,7 @@ public class VideoPlayerApp extends Application {
                 "-fx-text-fill: #FFFFFF;" +
                         "-fx-font-family: 'Segoe UI', 'Hiragino Sans GB';" +
                         "-fx-font-size: 14px;" +
-                        "-fx-padding: 10 20 10 40;" +  // 增加左侧留白用于装饰线
+                        "-fx-padding: 10 20 10 40;" + // 增加左侧留白用于装饰线
                         "-fx-background-color: transparent;" +
                         "-fx-cursor: hand;" +
                         "-fx-background-radius: 4;" +
@@ -216,8 +210,7 @@ public class VideoPlayerApp extends Application {
                         "-fx-border-color: transparent;" +
                         "hover:-fx-background-color: #3C3C3C;" +
                         "hover:-fx-border-color: " + accentColor + ";" +
-                        "pressed:-fx-background-color: #4D4D4D;"
-        );
+                        "pressed:-fx-background-color: #4D4D4D;");
         return item;
     }
 
@@ -243,8 +236,7 @@ public class VideoPlayerApp extends Application {
         alert.getDialogPane().setStyle(
                 "-fx-background-color: #2B2B2B;" +
                         "-fx-font-family: 'Hiragino Sans GB';" +
-                        "-fx-text-fill: white;"
-        );
+                        "-fx-text-fill: white;");
 
         // 自定义内容
         Text title = new Text("DogPlayer - 极简视频播放器");
@@ -267,8 +259,7 @@ public class VideoPlayerApp extends Application {
         // 设置对话框按钮区域样式
         alert.getDialogPane().lookupButton(ButtonType.OK).setStyle(
                 "-fx-background-color: #3C3C3C;" +
-                        "-fx-text-fill: white;"
-        );
+                        "-fx-text-fill: white;");
 
         alert.showAndWait();
     }
@@ -294,7 +285,7 @@ public class VideoPlayerApp extends Application {
     }
 
     private boolean isVideoFile(File file) {
-        String[] supportedExtensions = {".mp4", ".flv", ".mkv", ".avi"};
+        String[] supportedExtensions = { ".mp4", ".flv", ".mkv", ".avi" };
         String fileName = file.getName().toLowerCase();
         for (String ext : supportedExtensions) {
             if (fileName.endsWith(ext)) {
@@ -342,6 +333,22 @@ public class VideoPlayerApp extends Application {
             loadVideoFile(videoFile);
         }
     }
+
+    // 新增设置窗口显示方法
+    private void showSettingsWindow() {
+    SettingsPanel settingsPanel = new SettingsPanel(primaryStage);
+    Stage settingsStage = new Stage();
+    
+    // 添加窗口样式
+    settingsStage.initModality(Modality.APPLICATION_MODAL);
+    Scene scene = new Scene(settingsPanel, 600, 400);
+    scene.setFill(Color.TRANSPARENT);
+    scene.getRoot().setStyle("-fx-background-color: #2B2B2B; -fx-background-radius: 5;");
+    
+    settingsStage.setScene(scene);
+    settingsStage.setTitle("设置");
+    settingsStage.show();
+}
 
     public static void main(String[] args) {
         launch(args);
