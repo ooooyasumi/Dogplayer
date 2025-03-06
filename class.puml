@@ -1,5 +1,5 @@
 @startuml
-skinparam classFontSize 15
+skinparam classFontSize 13
 skinparam classAttributeIconSize 0
 left to right direction
 
@@ -8,39 +8,50 @@ class VideoPlayerApp {
   - mediaView: MediaView
   - controllerBar: VideoControllerBar
   - primaryStage: Stage
+  - hostServices: HostServices
+  - fadeOutTransition: FadeTransition
   + start(Stage): void
-  - initMenuBar(): void
-  - loadVideoFile(File): void
+  + loadVideoFile(File): void
+  + showSettingsWindow(): void
 }
 
 class VideoControllerBar {
   - mediaPlayer: MediaPlayer
   - stage: Stage
+  - progressSlider: Slider
+  - volumeSlider: Slider
   + VideoControllerBar(MediaPlayer, Stage, MediaView)
   + togglePlayPause(): void
-  - bindMediaPlayer(): void
+  + updateMediaPlayer(MediaPlayer): void
+  + handleMouseMove(): void
 }
 
 class FileUtils {
   + chooseVideoFile(Stage): File
 }
 
+class SettingsPanel {
+  - prefs: Preferences
+  + createGeneralSettings(): VBox
+  + createPlayerSettings(): VBox
+}
+
 package "JavaFX Framework" {
   class MediaPlayer #lightgray
   class Stage #lightgray
-  class MediaView #lightgray
+  class Scene #lightgray
+  class Preferences #lightgray
 }
 
-VideoPlayerApp --> VideoControllerBar 
-VideoPlayerApp ..> FileUtils
+VideoPlayerApp --> VideoControllerBar : 包含
+VideoPlayerApp ..> FileUtils : 使用
+VideoPlayerApp --> SettingsPanel : 创建
+VideoControllerBar --> MediaPlayer : 控制
+SettingsPanel ..> Preferences : 使用
+
 VideoPlayerApp --> MediaPlayer
 VideoPlayerApp --> Stage
-VideoPlayerApp --> MediaView
-
-VideoControllerBar --> MediaPlayer
-VideoControllerBar --> Stage
-
-MediaPlayer <|-- MediaView
+VideoPlayerApp --> Scene
 
 hide empty members
 @enduml

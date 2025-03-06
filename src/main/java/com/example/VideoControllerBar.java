@@ -1,5 +1,6 @@
 package com.example;
 
+// 导入JavaFX和相关库
 import javafx.application.Platform;
 import javafx.animation.AnimationTimer;
 import javafx.animation.FadeTransition;
@@ -18,34 +19,47 @@ import javafx.stage.Stage;
 import javafx.util.Duration;
 import javafx.scene.Cursor;
 
+/**
+ * 视频控制条组件，用于控制视频播放、进度、音量等
+ */
 public class VideoControllerBar extends HBox {
-    private ToggleButton playPauseButton;
-    private Button fullscreenButton;
-    private Slider progressSlider;
-    private Slider volumeSlider;
-    private Label timeLabel;
-    private MediaPlayer mediaPlayer;
-    private boolean isDragging = false;
-    private MediaPlayer.Status statusBeforeDrag;
-    private AnimationTimer timer;
-    private FadeTransition fadeTransition;
-    private long lastMouseMoveTime = System.currentTimeMillis();
-    private Stage stage;
-    private MediaView mediaView;
+    // 控件定义
+    private ToggleButton playPauseButton; // 播放/暂停按钮
+    private Button fullscreenButton;      // 全屏按钮
+    private Slider progressSlider;        // 进度条
+    private Slider volumeSlider;          // 音量条
+    private Label timeLabel;              // 时间标签
+    private MediaPlayer mediaPlayer;      // 媒体播放器
+    private boolean isDragging = false;  // 进度条拖动状态
+    private MediaPlayer.Status statusBeforeDrag; // 拖动前的播放状态
+    private AnimationTimer timer;         // 动画计时器，用于更新进度
+    private FadeTransition fadeTransition; // 淡出动画
+    private long lastMouseMoveTime = System.currentTimeMillis(); // 最后鼠标移动时间
+    private Stage stage;                  // 主舞台
+    private MediaView mediaView;          // 媒体视图
 
+    /**
+     * 构造函数
+     * @param mediaPlayer 媒体播放器
+     * @param stage 主舞台
+     * @param mediaView 媒体视图
+     */
     public VideoControllerBar(MediaPlayer mediaPlayer, Stage stage, MediaView mediaView) {
         this.mediaPlayer = mediaPlayer;
         this.stage = stage;
         this.mediaView = mediaView;
-        initUI();
-        if (mediaPlayer != null) bindMediaPlayer();
+        initUI(); // 初始化UI
+        if (mediaPlayer != null) bindMediaPlayer(); // 绑定媒体播放器
 
         // 添加媒体视图的鼠标移动监听
         mediaView.setOnMouseMoved(e -> handleMouseMove());
     }
 
+    /**
+     * 初始化UI组件
+     */
     private void initUI() {
-        // 初始化控件并更新图标
+        // 初始化控件并设置默认值
         playPauseButton = new ToggleButton("▶");
         fullscreenButton = new Button("⬜");
         progressSlider = new Slider(0, 1, 0);
@@ -156,6 +170,9 @@ public class VideoControllerBar extends HBox {
         });
     }
 
+    /**
+     * 绑定媒体播放器，启动计时器更新进度
+     */
     private void bindMediaPlayer() {
         timer = new AnimationTimer() {
             @Override
@@ -175,6 +192,9 @@ public class VideoControllerBar extends HBox {
         timer.start();
     }
 
+    /**
+     * 处理鼠标移动事件
+     */
     public void handleMouseMove() {
         lastMouseMoveTime = System.currentTimeMillis();
         if (!isVisible()) {
@@ -188,6 +208,9 @@ public class VideoControllerBar extends HBox {
         }
     }
 
+    /**
+     * 淡出控制条
+     */
     private void fadeOutControlBar() {
         if (!isVisible()) return;
 
@@ -198,6 +221,9 @@ public class VideoControllerBar extends HBox {
         fadeTransition.play();
     }
 
+    /**
+     * 更新进度条和时间标签
+     */
     private void updateProgress() {
         Duration current = mediaPlayer.getCurrentTime();
         Duration total = mediaPlayer.getTotalDuration();
@@ -209,6 +235,9 @@ public class VideoControllerBar extends HBox {
         }
     }
 
+    /**
+     * 更新时间显示
+     */
     private void updateTimeDisplay() {
         Duration total = mediaPlayer.getTotalDuration();
         if (isValidDuration(total)) {
@@ -218,10 +247,20 @@ public class VideoControllerBar extends HBox {
         }
     }
 
+    /**
+     * 检查时间是否有效
+     * @param d 时间对象
+     * @return 是否有效
+     */
     private boolean isValidDuration(Duration d) {
         return d != null && d.greaterThan(Duration.ZERO) && !d.isUnknown();
     }
 
+    /**
+     * 格式化时间
+     * @param millis 毫秒数
+     * @return 格式化后的时间字符串
+     */
     private String formatTime(long millis) {
         int hours = (int)(millis / 3600000);
         int minutes = (int)(millis % 3600000) / 60000;
@@ -231,6 +270,9 @@ public class VideoControllerBar extends HBox {
                 String.format("%02d:%02d", minutes, seconds);
     }
 
+    /**
+     * 切换播放/暂停状态
+     */
     public void togglePlayPause() {
         if (mediaPlayer != null) {
             if (mediaPlayer.getStatus() == MediaPlayer.Status.PLAYING) {
@@ -245,6 +287,10 @@ public class VideoControllerBar extends HBox {
         }
     }
 
+    /**
+     * 更新媒体播放器
+     * @param mediaPlayer 新的媒体播放器
+     */
     public void updateMediaPlayer(MediaPlayer mediaPlayer) {
         this.mediaPlayer = mediaPlayer;
         if (mediaPlayer != null) {
@@ -258,6 +304,9 @@ public class VideoControllerBar extends HBox {
         }
     }
 
+    /**
+     * 释放资源，停止计时器
+     */
     public void dispose() {
         if (timer != null) timer.stop();
     }
