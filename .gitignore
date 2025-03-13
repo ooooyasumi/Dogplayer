@@ -36,7 +36,15 @@ build/
 
 ### Mac OS ###
 .DS_Store
-class.puml
-class.puml
-function.puml
-class.puml
+plantuml/class.puml
+plantuml/class.puml
+plantuml/function.puml
+plantuml/class.puml
+/plantuml/control_sequence.puml
+/plantuml/file_sequence.puml
+/plantuml/function.puml
+/plantuml/Sequence Diagram.puml
+/plantuml/settings_sequence.puml
+/Users/
+/Users/
+/plantuml/
